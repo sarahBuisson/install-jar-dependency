@@ -10,6 +10,11 @@
     "extract-zip": ""
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Sarah Buisson",
+    "email": "sarah.buisson@gmail.com",
+    "website": "https://github.com/sarahBuisson/"
+  },
+  "homepage": "https://github.com/sarahBuisson/install-jar-dependency",
   "license": "ISC"
 }
