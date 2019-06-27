@@ -53,7 +53,7 @@ if (conf.jarDependencies != null) {
     Object.keys(conf.jarDependencies).map(async function (dependencyName, index) {
         var dependencyJarPath = conf.jarDependencies[dependencyName];
         console.log(`loading ${dependencyName} : ${dependencyJarPath}`)
-        var dependencyNodeDirectory = `${process.cwd()}/node_modules/${dependencyName}`
+        var dependencyNodeDirectory = `${process.cwd()}/node_modules/${dependencyName}/`
         if (!fs.existsSync(dependencyNodeDirectory)) {
             fs.mkdirSync(dependencyNodeDirectory);
         }
@@ -65,8 +65,8 @@ if (conf.jarDependencies != null) {
                 console.error(err);
                 process.exit()
             } else {
-                console.log(dependencyNodeDirectory + "/package.json")
-                if (!fs.existsSync(dependencyNodeDirectory + "/package.json")) {
+                console.log(dependencyNodeDirectory + "package.json")
+                if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
                     console.log("generating package.json")
                     writePackageJson(dependencyNodeDirectory, dependencyName);
                 }
