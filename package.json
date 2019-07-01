@@ -1,13 +1,17 @@
 {
   "name": "install-jar-dependency",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "extract-zip": ""
+    "extract-zip": "1.6.7",
+    "shelljs": "0.8.3"
+  },
+  "bin": {
+    "install-jar-dependency": "bin/run.js"
   },
   "keywords": [],
   "author": {
