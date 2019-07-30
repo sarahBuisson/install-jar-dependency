@@ -7,17 +7,17 @@ Typical useCase is js lib build by kotlin-multiplatform or maven
 
 ## Installation
 
-Get the library:
+Get the library installed in global
 
 ```
-npm install install-jar-dependency --save-dev
+npm install install-jar-dependency -g
 ```
 
 configure the plugin
 
 ```
   "scripts": {
-     "postinstall": "node node_modules/install-maven-dependency/./run.js package.json"
+     "postinstall": "install-maven-dependency"
   },
   
 ```
