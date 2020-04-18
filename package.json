@@ -1,13 +1,13 @@
 {
   "name": "install-jar-dependency",
-  "version": "0.0.3",
+  "version": "0.0.3-SNAPSHOT",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "extract-zip": "1.6.7",
+    "extract-zip": "2.0.0",
     "mvn-artifact-download": "^4.0.0",
     "mvn-artifact-name-parser": "^4.0.0",
     "shelljs": "0.8.3"
