@@ -83,8 +83,13 @@ let manageMavenDependencies = function () {
     let localMavenRepo = getMavenRepoExec.stdout.replace("\n", "");
     console.log("local maven repo:" + localMavenRepo);
     let defaultMavenRepositories = ["https://repo.maven.apache.org/maven2/", "http://repo1.maven.org/maven2/", "https://jcenter.bintray.com/"];
-    let remoteRepositories = defaultMavenRepositories + conf.mavenRepositories;
+    let remoteRepositories;
 
+    if (conf.mavenRepositories && Array.isArray(conf.mavenRepositories)) {
+        remoteRepositories = defaultMavenRepositories + conf.mavenRepositories;
+    } else {
+        remoteRepositories = defaultMavenRepositories;
+    }
     console.log("maven distant repo:" + remoteRepositories)
 
     Object.keys(conf.mavenDependencies).map(async function (dependencyName, index) {
