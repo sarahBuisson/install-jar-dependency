@@ -56,18 +56,18 @@ let downloadArtifactLocal = (localRepo, artifact, dependencyName) => {
 }
 
 let downloadArtifactOnAllRepo = async function (remoteRepositories, artifact, dependencyName) {
-    console.log(mvnDownload)
-    console.log(Object.keys(mvnDownload))
+    console.log(mvnDownload);
+    console.log(Object.keys(mvnDownload));
     for (let i = 0; i < remoteRepositories.length; i++) {
-        let repo = remoteRepositories[i]
+        let repo = remoteRepositories[i];
         try {
-            console.log("try repo " + repo)
+            console.log("try repo " + i + " " + repo);
             let ret = await mvnDownload(artifact, `${process.cwd()}/node_modules/${dependencyName}`, repo);
 
-            console.log(ret)
+            console.log(ret);
             return ret;
         } catch (e) {
-            console.log(e)
+            console.log(e);
             console.error(`${artifact} not find in ${repo}, continue`)
         }
     }
@@ -82,11 +82,11 @@ let manageMavenDependencies = function () {
     }
     let localMavenRepo = getMavenRepoExec.stdout.replace("\n", "");
     console.log("local maven repo:" + localMavenRepo);
-    let defaultMavenRepositories = ["https://repo.maven.apache.org/maven2/", "http://repo1.maven.org/maven2/", "https://jcenter.bintray.com/"];
+    let defaultMavenRepositories = ["https://repo.maven.apache.org/maven2/", "https://repo1.maven.org/maven2/", "https://jcenter.bintray.com/"];
     let remoteRepositories;
 
     if (conf.mavenRepositories && Array.isArray(conf.mavenRepositories)) {
-        remoteRepositories = defaultMavenRepositories + conf.mavenRepositories;
+        remoteRepositories = defaultMavenRepositories.concat(conf.mavenRepositories);
     } else {
         remoteRepositories = defaultMavenRepositories;
     }

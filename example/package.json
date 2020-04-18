@@ -9,7 +9,7 @@
   },
   "mavenDependencies": {
     "kotlin-logging": "io.github.microutils:kotlin-logging-js:1.6.22",
-    "kotlinx-serialization-kotlinx-serialization-runtime": "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:0.11.1",
+    "kotlinx-serialization-kotlinx-serialization-runtime": "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:0.14.0",
     "easy-rules-core": "org.jeasy:easy-rules-core-js:jar:3.2.4"
   },
   "mavenRepositories": [
