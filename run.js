@@ -7,12 +7,12 @@ let mvnDownload = require('mvn-artifact-download').default;
 let mvnParser = require('mvn-artifact-name-parser').default;
 let writePackageJson = function (dependencyNodeDirectory, dependencyName) {
     let files = fs.readdirSync(dependencyNodeDirectory);
-    let main = files.filter((f) => f.endsWith(".js") && !f.endsWith("meta.js"))
+    let main = files.filter((f) => f.endsWith(".js") && !f.endsWith("meta.js"));
     if (main.length == 0) {
-        console.error(`Error : no usable js file for ${dependencyName}`)
+        console.error(`Error : no usable js file for ${dependencyName}`);
         process.exit(1)
     }
-    fs.writeFileSync(dependencyNodeDirectory + "package.json", JSON.stringify({name: dependencyName, "main": main[0]}))
+    fs.writeFileSync(dependencyNodeDirectory + "package.json", JSON.stringify({name: dependencyName, "main": main[0]}));
     return files;
 };
 
@@ -33,8 +33,8 @@ let downloadArtifactLocal = (localRepo, artifact, dependencyName) => {
 
     let parse = mvnParser(artifact);
     console.log(parse);
-    let groupPath = parse.groupId.replace(new RegExp("\\.", 'g'),"/");
-    let arPath = parse.artifactId.replace(new RegExp("\\.", 'g'),"/");
+    let groupPath = parse.groupId.replace(new RegExp("\\.", 'g'), "/");
+    let arPath = parse.artifactId.replace(new RegExp("\\.", 'g'), "/");
     console.log(groupPath)
     console.log(arPath)
     console.log(localRepo)
@@ -44,7 +44,7 @@ let downloadArtifactLocal = (localRepo, artifact, dependencyName) => {
     console.log(artifactPath);
     if (fs.existsSync(artifactPath)) {
         console.log(`find ${artifact} in local`)
-        fs.copyFileSync(artifactPath,  `${process.cwd()}/node_modules/${dependencyName}/${dependencyName}.jar`)
+        fs.copyFileSync(artifactPath, `${process.cwd()}/node_modules/${dependencyName}/${dependencyName}.jar`)
 
         return true;
     }
@@ -61,7 +61,7 @@ let downloadArtifactOnAllRepo = async function (remoteRepositories, artifact, de
     for (let i = 0; i < remoteRepositories.length; i++) {
         let repo = remoteRepositories[i]
         try {
-            console.log("try repo "+repo)
+            console.log("try repo " + repo)
             let ret = await mvnDownload(artifact, `${process.cwd()}/node_modules/${dependencyName}`, repo);
 
             console.log(ret)
@@ -80,16 +80,17 @@ let manageMavenDependencies = function () {
         console.error(exec.stdout);
         process.exit(1)
     }
-    let localMavenRepo = getMavenRepoExec.stdout.replace("\n","");
+    let localMavenRepo = getMavenRepoExec.stdout.replace("\n", "");
     console.log("local maven repo:" + localMavenRepo);
-    let remoteRepositories = ["https://kotlin.bintray.com/kotlinx/", "https://repo.maven.apache.org/maven2/", "http://repo1.maven.org/maven2/", "https://kotlin.bintray.com/kotlinx/", "https://jcenter.bintray.com/", "https://dl.bintray.com/kotlin/kotlinx/"];
+    let defaultMavenRepositories = ["https://repo.maven.apache.org/maven2/", "http://repo1.maven.org/maven2/", "https://jcenter.bintray.com/"];
+    let remoteRepositories = defaultMavenRepositories + conf.mavenRepositories;
 
-    console.log("maven distant repo:"+remoteRepositories)
+    console.log("maven distant repo:" + remoteRepositories)
 
     Object.keys(conf.mavenDependencies).map(async function (dependencyName, index) {
 
 
-        console.log(`loading ${dependencyName}`)
+        console.log(`loading ${dependencyName}`);
         var artifact = conf.mavenDependencies[dependencyName];
         let dependencyNodeDirectory = `${process.cwd()}/node_modules/${dependencyName}/`;
 
@@ -98,27 +99,27 @@ let manageMavenDependencies = function () {
         }
 
 
-        if(!downloadArtifactLocal(localMavenRepo,artifact,dependencyName)) {
+        if (!downloadArtifactLocal(localMavenRepo, artifact, dependencyName)) {
             let ret = await downloadArtifactOnAllRepo(remoteRepositories, artifact, dependencyName);
         }
 
-            console.log(`unzipping ${dependencyName}`)
-            console.log(fs.readdirSync(dependencyNodeDirectory))
-            let jarFile = fs.readdirSync(dependencyNodeDirectory).filter((s) => s.endsWith(".jar"))[0]
-            extractZip(dependencyNodeDirectory + jarFile, {dir: dependencyNodeDirectory}, (err) => {
-                if (err) {
-                    console.error("error in extractZip of " + dependencyNodeDirectory + " " + jarFile);
-                    console.error(err);
-                    process.exit()
-                } else {
-                    console.log(`unzipped ${dependencyName}`)
-                    if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
-                        writePackageJson(dependencyNodeDirectory, dependencyName);
+        console.log(`unzipping ${dependencyName}`);
+        console.log(fs.readdirSync(dependencyNodeDirectory));
+        let jarFile = fs.readdirSync(dependencyNodeDirectory).filter((s) => s.endsWith(".jar"))[0]
+        extractZip(dependencyNodeDirectory + jarFile, {dir: dependencyNodeDirectory}, (err) => {
+            if (err) {
+                console.error("error in extractZip of " + dependencyNodeDirectory + " " + jarFile);
+                console.error(err);
+                process.exit()
+            } else {
+                console.log(`unzipped ${dependencyName}`);
+                if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
+                    writePackageJson(dependencyNodeDirectory, dependencyName);
 
-                    }
-                    runInstall(dependencyNodeDirectory)
                 }
-            })
+                runInstall(dependencyNodeDirectory)
+            }
+        })
 
     });
 };
@@ -141,27 +142,27 @@ let run = function () {
             console.log("manage jarDependencies")
             Object.keys(conf.jarDependencies).map(async function (dependencyName, index) {
                 let dependencyJarPath = conf.jarDependencies[dependencyName];
-                console.log(`loading ${dependencyName} : ${dependencyJarPath}`)
-                let dependencyNodeDirectory = `${process.cwd()}/node_modules/${dependencyName}/`
+                console.log(`loading ${dependencyName} : ${dependencyJarPath}`);
+                let dependencyNodeDirectory = `${process.cwd()}/node_modules/${dependencyName}/`;
                 if (!fs.existsSync(dependencyNodeDirectory)) {
-                    console.debug(`making dir ${dependencyNodeDirectory}`)
+                    console.debug(`making dir ${dependencyNodeDirectory}`);
                     fs.mkdirSync(dependencyNodeDirectory);
                     console.debug(`maked ${dependencyNodeDirectory}`)
                 }
 
-                console.debug("coping " + dependencyJarPath + " to " + dependencyNodeDirectory+" "+dependencyName)
+                console.debug("coping " + dependencyJarPath + " to " + dependencyNodeDirectory + " " + dependencyName)
                 fs.copyFileSync(`${dependencyJarPath}`, `${dependencyNodeDirectory}/${dependencyName}.jar`)
                 console.debug("copied");
 
                 extractZip(`${dependencyNodeDirectory}/${dependencyName}.jar`, {dir: dependencyNodeDirectory}, function (err) {
                     if (err) {
-                        console.log("error in unzip of " + dependencyName)
+                        console.log("error in unzip of " + dependencyName);
                         console.error(err);
                         process.exit()
                     } else {
-                        console.log(dependencyNodeDirectory + "package.json")
+                        console.log(dependencyNodeDirectory + "package.json");
                         if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
-                            console.log("generating package.json")
+                            console.log("generating package.json");
                             writePackageJson(dependencyNodeDirectory, dependencyName);
                         }
                         runInstall(dependencyNodeDirectory)
