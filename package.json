@@ -1,6 +1,6 @@
 {
   "name": "install-jar-dependency",
-  "version": "0.0.3-SNAPSHOT",
+  "version": "0.0.4",
   "description": "",
   "main": "index.js",
   "scripts": {
