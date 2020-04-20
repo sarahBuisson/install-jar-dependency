@@ -158,21 +158,25 @@ let run = function () {
                 console.debug("coping " + dependencyJarPath + " to " + dependencyNodeDirectory + " " + dependencyName)
                 fs.copyFileSync(`${dependencyJarPath}`, `${dependencyNodeDirectory}/${dependencyName}.jar`)
                 console.debug("copied");
+                 try {
+                    await extractZip(`${dependencyNodeDirectory}/${dependencyName}.jar`, {dir: dependencyNodeDirectory})
 
-                extractZip(`${dependencyNodeDirectory}/${dependencyName}.jar`, {dir: dependencyNodeDirectory}, function (err) {
-                    if (err) {
-                        console.log("error in unzip of " + dependencyName);
-                        console.error(err);
-                        process.exit()
-                    } else {
-                        console.log(dependencyNodeDirectory + "package.json");
-                        if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
-                            console.log("generating package.json");
-                            writePackageJson(dependencyNodeDirectory, dependencyName);
-                        }
-                        runInstall(dependencyNodeDirectory)
+                    console.log(dependencyNodeDirectory + "package.json");
+                    if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
+                        console.log("generating package.json");
+                        writePackageJson(dependencyNodeDirectory, dependencyName);
                     }
-                })
+                    runInstall(dependencyNodeDirectory)
+
+
+                } catch
+                    (err) {
+
+                    console.log("error in unzip of " + dependencyName);
+                    console.error(err);
+                    process.exit()
+
+                }
 
                 // command output is in stdout
 
