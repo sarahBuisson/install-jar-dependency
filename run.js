@@ -6,6 +6,7 @@ var shell = require("shelljs");
 let mvnDownload = require('mvn-artifact-download').default;
 let mvnParser = require('mvn-artifact-name-parser').default;
 let writePackageJson = function (dependencyNodeDirectory, dependencyName) {
+    console.log(`generate package.json for ${dependencyNodeDirectory}`)
     let files = fs.readdirSync(dependencyNodeDirectory);
     let main = files.filter((f) => f.endsWith(".js") && !f.endsWith("meta.js"));
     if (main.length == 0) {
@@ -72,7 +73,7 @@ let downloadArtifactOnAllRepo = async function (remoteRepositories, artifact, de
         }
     }
 };
-let manageMavenDependencies = function () {
+let manageMavenDependencies = async function () {
     let cmdGetMavenRepo = " mvn help:evaluate -Dexpression=settings.localRepository | grep -v '\\[INFO\\]'"
     let getMavenRepoExec = shell.exec(cmdGetMavenRepo);
     if (getMavenRepoExec.code !== 0) {
@@ -111,26 +112,24 @@ let manageMavenDependencies = function () {
         console.log(`unzipping ${dependencyName}`);
         console.log(fs.readdirSync(dependencyNodeDirectory));
         let jarFile = fs.readdirSync(dependencyNodeDirectory).filter((s) => s.endsWith(".jar"))[0]
-        extractZip(dependencyNodeDirectory + jarFile, {dir: dependencyNodeDirectory}, (err) => {
-            if (err) {
-                console.error("error in extractZip of " + dependencyNodeDirectory + " " + jarFile);
-                console.error(err);
-                process.exit()
-            } else {
-                console.log(`unzipped ${dependencyName}`);
-                if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
-                    writePackageJson(dependencyNodeDirectory, dependencyName);
-
-                }
-                runInstall(dependencyNodeDirectory)
+        try {
+           await extractZip(dependencyNodeDirectory + jarFile, {dir: dependencyNodeDirectory})
+            console.log(`unzipped ${dependencyName}`);
+            if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
+                writePackageJson(dependencyNodeDirectory, dependencyName);
             }
-        })
+            runInstall(dependencyNodeDirectory)
 
+        } catch (err) {
+            console.error("error in extractZip of " + dependencyNodeDirectory + " " + jarFile);
+            console.error(err);
+            process.exit()
+        }
     });
 };
 
 
-let run = function () {
+let run = async function () {
 
     try {
         if (!fs.existsSync(`${process.cwd()}/node_modules/`)) {
