@@ -12,7 +12,7 @@ install the library
 
 ```
  "devDependencies": {
-    "install-jar-dependency": "0.0.4"
+    "install-jar-dependency": "0.0.6"
   }
 ```
 
@@ -20,7 +20,7 @@ configure the plugin
 
 ```
   "scripts": {
-     "postinstall": "npxinstall-maven-dependency"
+     "postinstall": "npx install-maven-dependency"
   },
   
 ```
