@@ -12,7 +12,7 @@ install the library
 
 ```
  "devDependencies": {
-    "install-jar-dependency": "0.0.6"
+    "install-jar-dependency": "0.0.8"
   }
 ```
 

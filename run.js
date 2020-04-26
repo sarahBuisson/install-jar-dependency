@@ -33,15 +33,15 @@ let runInstall = function (dependencyNodeDirectory) {
 let downloadArtifactLocal = (localRepo, artifact, dependencyName) => {
 
     let parse = mvnParser(artifact);
-    console.log(parse);
     let groupPath = parse.groupId.replace(new RegExp("\\.", 'g'), "/");
     let arPath = parse.artifactId.replace(new RegExp("\\.", 'g'), "/");
     console.log(groupPath)
     console.log(arPath)
+    let version = parse.version + (parse.isSnapShot ? "-SNAPSHOT" : "");
     console.log(localRepo)
 
-    let fileName = parse.artifactId + "-" + parse.version + "." + (parse.classifier ? parse.classifier : "jar");
-    let artifactPath = "/" + localRepo + "/" + groupPath + "/" + arPath + "/" + parse.version + "/" + fileName;
+    let fileName = parse.artifactId + "-" + version + "." + (parse.classifier ? parse.classifier : "jar");
+    let artifactPath = "/" + localRepo + "/" + groupPath + "/" + arPath + "/" + version + "/" + fileName;
     console.log(artifactPath);
     if (fs.existsSync(artifactPath)) {
         console.log(`find ${artifact} in local`)
@@ -129,6 +129,37 @@ let manageMavenDependencies = async function () {
 };
 
 
+async function manageJarDependency(dependencyName) {
+    let dependencyJarPath = conf.jarDependencies[dependencyName];
+    console.log(`loading ${dependencyName} : ${dependencyJarPath}`);
+    let dependencyNodeDirectory = `${process.cwd()}/node_modules/${dependencyName}/`;
+    if (!fs.existsSync(dependencyNodeDirectory)) {
+        console.debug(`making dir ${dependencyNodeDirectory}`);
+        fs.mkdirSync(dependencyNodeDirectory);
+        console.debug(`maked ${dependencyNodeDirectory}`)
+    }
+
+    console.debug("coping " + dependencyJarPath + " to " + dependencyNodeDirectory + " " + dependencyName)
+    fs.copyFileSync(`${dependencyJarPath}`, `${dependencyNodeDirectory}/${dependencyName}.jar`)
+    console.debug("copied");
+    try {
+        await extractZip(`${dependencyNodeDirectory}/${dependencyName}.jar`, {dir: dependencyNodeDirectory})
+        console.log(dependencyNodeDirectory + "package.json");
+        if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
+            console.log("generating package.json");
+            writePackageJson(dependencyNodeDirectory, dependencyName);
+        }
+        runInstall(dependencyNodeDirectory)
+    } catch (err) {
+        console.log("error in unzip of " + dependencyName);
+        console.error(err);
+        process.exit()
+
+    }
+
+    // command output is in stdout
+}
+
 let run = async function () {
 
     try {
@@ -145,34 +176,7 @@ let run = async function () {
         if (conf.jarDependencies != null) {
             console.log("manage jarDependencies")
             Object.keys(conf.jarDependencies).map(async function (dependencyName, index) {
-                let dependencyJarPath = conf.jarDependencies[dependencyName];
-                console.log(`loading ${dependencyName} : ${dependencyJarPath}`);
-                let dependencyNodeDirectory = `${process.cwd()}/node_modules/${dependencyName}/`;
-                if (!fs.existsSync(dependencyNodeDirectory)) {
-                    console.debug(`making dir ${dependencyNodeDirectory}`);
-                    fs.mkdirSync(dependencyNodeDirectory);
-                    console.debug(`maked ${dependencyNodeDirectory}`)
-                }
-
-                console.debug("coping " + dependencyJarPath + " to " + dependencyNodeDirectory + " " + dependencyName)
-                fs.copyFileSync(`${dependencyJarPath}`, `${dependencyNodeDirectory}/${dependencyName}.jar`)
-                console.debug("copied");
-                try {
-                    await extractZip(`${dependencyNodeDirectory}/${dependencyName}.jar`, {dir: dependencyNodeDirectory})
-                    console.log(dependencyNodeDirectory + "package.json");
-                    if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
-                        console.log("generating package.json");
-                        writePackageJson(dependencyNodeDirectory, dependencyName);
-                    }
-                    runInstall(dependencyNodeDirectory)
-                } catch (err) {
-                    console.log("error in unzip of " + dependencyName);
-                    console.error(err);
-                    process.exit()
-
-                }
-
-                // command output is in stdout
+                await manageJarDependency(dependencyName);
 
             });
         }
