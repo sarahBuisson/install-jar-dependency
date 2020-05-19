@@ -41,17 +41,40 @@ configure the plugin
   npm install
   ```
   
-  
+## advanced configuration  
 
-optional: add custom maven Repositories
-(default repositories are "https://repo.maven.apache.org/maven2/", "https://repo1.maven.org/maven2/", "https://jcenter.bintray.com/")
+### add custom maven Repositories
 ```
-  "mavenRepositories": [
+installJarConfig:{
+  "additionalMavenRepositories": [
     "https://kotlin.bintray.com/kotlinx/",
     "https://kotlin.bintray.com/kotlinx/",
     "https://dl.bintray.com/kotlin/kotlinx/"
   ]
+}
+```
+
+###override defaultMavenRepositories
+(default repositories are "https://repo.maven.apache.org/maven2/", "https://repo1.maven.org/maven2/", "https://jcenter.bintray.com/")
+```  
+    installJarConfig:{
+        defaultMavenRepositories:
+            [ "https://kotlin.bintray.com/kotlinx/"]
+    }
 ```
   
+###don't use maven local repository: (default:true)
+```
+installJarConfig : {
+    useMavenLocalRepository:false  
+}
+```
+
+###use a specific timeout in ms: (default= system timeout)
+  ```
+installJarConfig : {
+    timeout:10000  
+}
+```
   
   Example project here: https://github.com/sarahBuisson/install-jar-dependency/tree/master/example

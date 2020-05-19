@@ -1,6 +1,6 @@
 {
   "name": "install-jar-dependency",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,8 +8,8 @@
   },
   "dependencies": {
     "extract-zip": "2.0.0",
-    "mvn-artifact-download": "^4.0.0",
-    "mvn-artifact-name-parser": "^4.0.0",
+    "mvn-artifact-download": "^5.0.0",
+    "mvn-artifact-name-parser": "^5.0.0",
     "shelljs": "0.8.3"
   },
   "bin": {

@@ -57,13 +57,11 @@ let downloadArtifactLocal = (localRepo, artifact, dependencyName) => {
 }
 
 let downloadArtifactOnAllRepo = async function (remoteRepositories, artifact, dependencyName) {
-    console.log(mvnDownload);
-    console.log(Object.keys(mvnDownload));
     for (let i = 0; i < remoteRepositories.length; i++) {
         let repo = remoteRepositories[i];
         try {
             console.log("try repo " + i + " " + repo);
-            let ret = await mvnDownload(artifact, `${process.cwd()}/node_modules/${dependencyName}`, repo);
+            let ret = await mvnDownload(artifact, `${process.cwd()}/node_modules/${dependencyName}`, repo, undefined, {timeout: conf.installJarConfig.timeout});
 
             console.log(ret);
             return ret;
@@ -82,12 +80,20 @@ let manageMavenDependencies = async function () {
         process.exit(1)
     }
     let localMavenRepo = getMavenRepoExec.stdout.replace("\n", "");
-    console.log("local maven repo:" + localMavenRepo);
-    let defaultMavenRepositories = ["https://repo.maven.apache.org/maven2/", "https://repo1.maven.org/maven2/", "https://jcenter.bintray.com/"];
+    console.log("local maven repo:" + localMavenRepo + " use: " + (conf.installJarConfig.useMavenLocalRepository === true));
+    let defaultMavenRepositories;
+    if (conf.installJarConfig.defaultMavenRepositories) {
+        console.log("override defaultMavenRepositories")
+        defaultMavenRepositories = conf.installJarConfig.defaultMavenRepositories;
+    } else {
+        console.log("use defaultMavenRepositories")
+        defaultMavenRepositories = ["https://repo.maven.apache.org/maven2/", "https://repo1.maven.org/maven2/", "https://jcenter.bintray.com/"];
+    }
     let remoteRepositories;
 
-    if (conf.mavenRepositories && Array.isArray(conf.mavenRepositories)) {
-        remoteRepositories = defaultMavenRepositories.concat(conf.mavenRepositories);
+    if (conf.installJarConfig.additionalMavenRepositories && Array.isArray(conf.installJarConfig.additionalMavenRepositories)) {
+        console.log("use additional additionalMavenRepositories")
+        remoteRepositories = defaultMavenRepositories.concat(conf.installJarConfig.additionalMavenRepositories);
     } else {
         remoteRepositories = defaultMavenRepositories;
     }
@@ -105,15 +111,17 @@ let manageMavenDependencies = async function () {
         }
 
 
-        if (!downloadArtifactLocal(localMavenRepo, artifact, dependencyName)) {
-            let ret = await downloadArtifactOnAllRepo(remoteRepositories, artifact, dependencyName);
+        if (conf.installJarConfig.useMavenLocalRepository === false || !downloadArtifactLocal(localMavenRepo, artifact, dependencyName)) {
+            await downloadArtifactOnAllRepo(remoteRepositories, artifact, dependencyName).catch((err) => console.log(err));
+
         }
+
 
         console.log(`unzipping ${dependencyName}`);
         console.log(fs.readdirSync(dependencyNodeDirectory));
         let jarFile = fs.readdirSync(dependencyNodeDirectory).filter((s) => s.endsWith(".jar"))[0]
         try {
-           await extractZip(dependencyNodeDirectory + jarFile, {dir: dependencyNodeDirectory})
+            await extractZip(dependencyNodeDirectory + jarFile, {dir: dependencyNodeDirectory})
             console.log(`unzipped ${dependencyName}`);
             if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
                 writePackageJson(dependencyNodeDirectory, dependencyName);
