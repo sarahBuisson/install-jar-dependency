@@ -157,8 +157,8 @@ async function manageJarDependency(dependencyName) {
                 console.debug("copied");
                 try {
                     await extractZip(`${dependencyNodeDirectory}/${dependencyName}.jar`, {dir: dependencyNodeDirectory})
-                    console.log(dependencyNodeDirectory + "package.json");
-                    if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
+                    console.log(dependencyNodeDirectory + "/package.json");
+                    if (!fs.existsSync(dependencyNodeDirectory + "/package.json")) {
                         console.log("generating package.json");
                         writePackageJson(dependencyNodeDirectory, dependencyName);
                     }
