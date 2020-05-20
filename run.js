@@ -2,6 +2,7 @@ let conf = require(process.cwd() + "/package.json")
 let fs = require("fs")
 let extractZip = require("extract-zip")
 var shell = require("shelljs");
+const request = require('request');
 
 let mvnDownload = require('mvn-artifact-download').default;
 let mvnParser = require('mvn-artifact-name-parser').default;
@@ -140,7 +141,7 @@ let manageMavenDependencies = async function () {
 async function manageJarDependency(dependencyName) {
     let dependencyJarPath = conf.jarDependencies[dependencyName];
     console.log(`loading ${dependencyName} : ${dependencyJarPath}`);
-    let dependencyNodeDirectory = `${process.cwd()}/node_modules/${dependencyName}/`;
+    let dependencyNodeDirectory = `${process.cwd()}/node_modules/${dependencyName}`;
     if (!fs.existsSync(dependencyNodeDirectory)) {
         console.debug(`making dir ${dependencyNodeDirectory}`);
         fs.mkdirSync(dependencyNodeDirectory);
@@ -148,22 +149,47 @@ async function manageJarDependency(dependencyName) {
     }
 
     console.debug("coping " + dependencyJarPath + " to " + dependencyNodeDirectory + " " + dependencyName)
-    fs.copyFileSync(`${dependencyJarPath}`, `${dependencyNodeDirectory}/${dependencyName}.jar`)
-    console.debug("copied");
-    try {
-        await extractZip(`${dependencyNodeDirectory}/${dependencyName}.jar`, {dir: dependencyNodeDirectory})
-        console.log(dependencyNodeDirectory + "package.json");
-        if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
-            console.log("generating package.json");
-            writePackageJson(dependencyNodeDirectory, dependencyName);
-        }
-        runInstall(dependencyNodeDirectory)
-    } catch (err) {
-        console.log("error in unzip of " + dependencyName);
-        console.error(err);
-        process.exit()
+    if(dependencyJarPath.startsWith("http")){
+         request(dependencyJarPath)
+            .pipe(fs.createWriteStream(`${dependencyNodeDirectory}/${dependencyName}.jar`))
+            .on('close', async function () {
+                console.log('File written!');
+                console.debug("copied");
+                try {
+                    await extractZip(`${dependencyNodeDirectory}/${dependencyName}.jar`, {dir: dependencyNodeDirectory})
+                    console.log(dependencyNodeDirectory + "package.json");
+                    if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
+                        console.log("generating package.json");
+                        writePackageJson(dependencyNodeDirectory, dependencyName);
+                    }
+                    runInstall(dependencyNodeDirectory)
+                } catch (err) {
+                    console.log("error in unzip of " + dependencyName);
+                    console.error(err);
+                    process.exit()
 
+                }
+
+        });
+    }else {
+        fs.copyFileSync(`${dependencyJarPath}`, `${dependencyNodeDirectory}/${dependencyName}.jar`)
+        console.debug("copied");
+        try {
+            await extractZip(`${dependencyNodeDirectory}/${dependencyName}.jar`, {dir: dependencyNodeDirectory})
+            console.log(dependencyNodeDirectory + "package.json");
+            if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
+                console.log("generating package.json");
+                writePackageJson(dependencyNodeDirectory, dependencyName);
+            }
+            runInstall(dependencyNodeDirectory)
+        } catch (err) {
+            console.log("error in unzip of " + dependencyName);
+            console.error(err);
+            process.exit()
+
+        }
     }
+
 
     // command output is in stdout
 }
