@@ -14,7 +14,7 @@ let writePackageJson = function (dependencyNodeDirectory, dependencyName) {
         console.error(`Error : no usable js file for ${dependencyName}`);
         process.exit(1)
     }
-    fs.writeFileSync(dependencyNodeDirectory + "package.json", JSON.stringify({name: dependencyName, "main": main[0]}));
+    fs.writeFileSync(dependencyNodeDirectory + "/package.json", JSON.stringify({name: dependencyName, "main": main[0]}));
     return files;
 };
 
@@ -124,7 +124,7 @@ let manageMavenDependencies = async function () {
         try {
             await extractZip(dependencyNodeDirectory + jarFile, {dir: dependencyNodeDirectory})
             console.log(`unzipped ${dependencyName}`);
-            if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
+            if (!fs.existsSync(dependencyNodeDirectory + "/package.json")) {
                 writePackageJson(dependencyNodeDirectory, dependencyName);
             }
             runInstall(dependencyNodeDirectory)
@@ -176,8 +176,8 @@ async function manageJarDependency(dependencyName) {
         console.debug("copied");
         try {
             await extractZip(`${dependencyNodeDirectory}/${dependencyName}.jar`, {dir: dependencyNodeDirectory})
-            console.log(dependencyNodeDirectory + "package.json");
-            if (!fs.existsSync(dependencyNodeDirectory + "package.json")) {
+            console.log(dependencyNodeDirectory + "/package.json");
+            if (!fs.existsSync(dependencyNodeDirectory + "/package.json")) {
                 console.log("generating package.json");
                 writePackageJson(dependencyNodeDirectory, dependencyName);
             }
