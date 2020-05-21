@@ -14,7 +14,8 @@
     "easy-rules-kotlin-easy-rules-api": "org.jeasy:easy-rules-api-npm:3.2.4-snapshot"
   },
   "jarDependencies": {
-    "kotlin-logginJar": "./kotlin-logging-js-1.6.22.jar"
+    "kotlin-loggin-from-jar": "./kotlin-logging-js-1.6.22.jar",
+    "easy-rules-api-from-url": "https://packagecloud.io/sarahBuisson/snapshot/packages/java/org.jeasy/easy-rules-api-npm-3.2.4-snapshot.jar/artifacts/easy-rules-api-npm-3.2.4-snapshot.jar/download"
   },
   "installJarConfig": {
     "defaultMavenRepositories": [
