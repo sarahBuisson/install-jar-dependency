@@ -1,4 +1,6 @@
 const conf = require(process.cwd() + "/package.json");
+if(!conf.installJarConfig)
+    conf.installJarConfig = {}
 const fs = require("fs");
 const installJar = require('./install').installJar;
 const mvnDownload = require('mvn-artifact-download').default;
