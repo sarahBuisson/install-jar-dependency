@@ -11,7 +11,7 @@
     "mvn-artifact-download": "^5.0.0",
     "mvn-artifact-name-parser": "^5.0.0",
     "request": "^2.88.2",
-    "shelljs": "0.8.3"
+    "shelljs": "0.8.5"
   },
   "bin": {
     "install-jar-dependency": "bin/run.js"
